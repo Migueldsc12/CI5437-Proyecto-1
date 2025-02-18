@@ -30,7 +30,6 @@ int md_lc(vector<vector<int>> node){
                             };
                         };
                     };
-                    
                 // Check if the tile is in the same column as its goal position
                 } if(j == goalY){
                     for(int k = i+1; k < node.size(); k++){
@@ -43,14 +42,11 @@ int md_lc(vector<vector<int>> node){
                             };
                         };
                     };
+                };
             };
         };
-    
     };
-    
-};
-return distance/3 + conflict; // md/3 + lc
-
+    return distance/3 + conflict; // md/3 + lc
 };
 
 // Pa probar
