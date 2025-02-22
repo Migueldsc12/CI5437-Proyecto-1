@@ -1,5 +1,5 @@
 #include <iostream>
-#include "RBFS.cpp"
+#include "HH.h"
 using namespace std;
 
 // Heuristics
