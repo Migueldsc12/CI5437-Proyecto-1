@@ -1,4 +1,4 @@
-=== Instrucciones para Compilar y Ejecutar ===
+# === Instrucciones para Compilar y Ejecutar ===
 
 1. Compilación:
    - Abre una terminal en la carpeta donde se encuentra el archivo `makefile`.
@@ -37,11 +37,12 @@
     13 14 15 0 
 
     Longitud del camino: 1
+   
     Estados generados: 13
 
 
 
-5. Caso sin Solución:
+6. Caso sin Solución:
 - Si el tablero no tiene solución, el programa imprimirá:
   ```
   No hay solucion
@@ -54,9 +55,10 @@ Esta heurística guía la búsqueda para encontrar la solución óptima al 15-Pu
 
 === Autores ===
 
-- Nombre: 
-    Miguel Salomon - 1910274
+- Nombre:
   
-    Laura Parilli - 1710778
+    - Miguel Salomon - 1910274
+  
+    - Laura Parilli - 1710778
 
 
