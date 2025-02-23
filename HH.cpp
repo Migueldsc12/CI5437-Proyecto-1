@@ -5,7 +5,6 @@
 #include <numeric>
 #include <fstream>
 #include<sstream>
-#include <unordered_map>
 
 using namespace std;
 
@@ -23,89 +22,89 @@ using namespace std;
 // because there is 1 element that is part of the first row of the goal state and 2 elements that are
 // part of the second one. The zero isn't counted.
 
-vector<vector<int>> associatedMatrix(const vector<vector<int>>& state, int direction) {
+vector<vector<int>> associatedMatrix(vector<vector<int>> state, int direction){
+    vector<vector<int>> map(state.size(), vector<int>(state.size(), 0));
     int size = state.size();
-    vector<vector<int>> map(size, vector<int>(size, 0));
-    for (int i = 0; i < size; i++) {
-        for (int j = 0; j < size; j++) {
-            if (state[i][j] != 0) {
-                int n = (direction == 0) ? (state[i][j] - 1) / size : (state[i][j] - 1) % size;
-                map[i][n]++;
-            }
+        for(int i = 0; i < size ; i++){
+            for(int j = 0 ; j < size ; j++){
+                if(state[i][j]!= 0 && direction == 0)  {
+                    int n = (state[i][j] - 1) /size;
+                    map[i][n]++;
+                }else if(state[i][j]!= 0 && direction == 1){
+                    int n = (state[i][j] - 1) % size;
+                    map[n][j]++;
+                }
         }
     }
     return map;
-}
+};
 
 // Finds the traspose of a matrix to get the vertical walking distance
-vector<vector<int>> traspose(const vector<vector<int>>& node) {
-    int size = node.size();
-    vector<vector<int>> traspose(size, vector<int>(size));
-    for (int i = 0; i < size; i++) {
-        for (int j = 0; j < size; j++) {
-            traspose[j][i] = node[i][j];
+vector<vector<int>> traspose(vector<vector<int>> node){
+    vector<vector<int>> traspose;
+    for(int i = 0; i < static_cast<int>(node.size()); i++){
+        vector<int> row;
+        for(int j = 0; j < static_cast<int>(node.size()); j++){
+            row.push_back(node[j][i]);
         }
+        traspose.push_back(row);
     }
     return traspose;
-}
+};
 
 // Converts a matrix to a string for comparison with the database
 string matrixToString(const vector<vector<int>>& matrix) {
-    stringstream ss;
+    string matrix_str;
     for (const auto& row : matrix) {
         for (int val : row) {
-            ss << val << " ";
+            matrix_str += to_string(val) + " ";
         }
-        ss << ";";
+        matrix_str += ";";
     }
-    string result = ss.str();
-    result.pop_back();
-    return result;
+    matrix_str.pop_back();
+    return matrix_str;
 }
 
 // Finds the state in the database
-
-unordered_map<string, int> loadDatabase(const string& filename) {
+int findStateInFile(const vector<vector<int>>& targetMatrix, const string& filename) {
     ifstream file(filename);
-    unordered_map<string, int> db;
-
     if (!file.is_open()) {
-        cerr << "Can't open the file " << filename << endl;
-        return db;
+        cerr << "Cant open the file" << filename << endl;
+        return -1;
     }
+
+    string targetMatrixStr = matrixToString(targetMatrix);
 
     string line;
     while (getline(file, line)) {
         size_t pos = line.find(':');
         if (pos != string::npos) {
-            string matrixPart = line.substr(0, pos);
-            int distance = stoi(line.substr(pos + 1));
-            db[matrixPart] = distance;
+            string matrixPart = line.substr(0, pos); //Extract the matrix
+            string distancePart = line.substr(pos + 1); // Extract the distance
+
+            if (matrixPart == targetMatrixStr) {
+                return stoi(distancePart); // Convert the distance to int
+            }
         }
     }
 
     file.close();
-    return db;
+    return -1; // Return -1 if the state isn't found
 }
 
-int findStateInFile(const vector<vector<int>>& targetMatrix, const unordered_map<string, int>& db) {
-    string targetMatrixStr = matrixToString(targetMatrix);
-    auto it = db.find(targetMatrixStr);
-    return (it != db.end()) ? it->second : -1;
-
-}
 // ------ Heuristics -------
 
 // Walking distance
-int walking_distance(const vector<vector<int>>& node, const unordered_map<string, int>& db) {
-    vector<vector<int>> horizontal = associatedMatrix(node, 0);
-    vector<vector<int>> vertical = associatedMatrix(node, 1);
+int walking_distance(vector<vector<int>> node){
+    vector<vector<int>> horizontal = associatedMatrix(node,0);
+    vector<vector<int>> vertical = associatedMatrix(node,1);
     vertical = traspose(vertical);
 
-    int horizontalWD = findStateInFile(horizontal, db);
-    int verticalWD = findStateInFile(vertical, db);
+    int horizontalWD= findStateInFile(horizontal, "dbStates.txt");
+    int verticalWD = findStateInFile(vertical, "dbStates.txt");
 
     return horizontalWD + verticalWD;
+
 }
 
 // Manhattan distance
@@ -159,13 +158,6 @@ int linearConflict(const vector<vector<int>>& puzzle) {
 }
 
 // Hybrid heuristic (HH)
-int HH(const vector<vector<int>>& node) {
-    string filename = "dbStates.txt";
-    unordered_map<string, int> db = loadDatabase(filename);
-
-    int distance = walking_distance(node, db);
-    int manhattan = manhattanDistance(node) / 3;
-    int linear = linearConflict(node);
-
-    return distance + manhattan + linear;
+int HH(vector<vector<int>> node){
+    return walking_distance(node) + (manhattanDistance(node) /3)+ linearConflict(node);
 }
