@@ -5,8 +5,32 @@
 #include <numeric>
 #include <fstream>
 #include<sstream>
+#include <unordered_map>
+#include <map>
 
 using namespace std;
+
+map<string, int> db;
+
+void loadDatabase(const string& filename) {
+    ifstream file(filename);
+    if (!file.is_open()) {
+        cerr << "Error: No se pudo abrir el archivo " << filename << endl;
+        return;
+    }
+    string line;
+    while (getline(file, line)) {
+        size_t pos = line.find(':');
+        if (pos != string::npos) {
+            string matrixPart = line.substr(0, pos);
+            int distance = stoi(line.substr(pos + 1));
+            db[matrixPart] = distance;
+        }
+    }
+
+    file.close();
+}
+
 
 // ------ Helper functions -------
 
@@ -22,89 +46,61 @@ using namespace std;
 // because there is 1 element that is part of the first row of the goal state and 2 elements that are
 // part of the second one. The zero isn't counted.
 
-vector<vector<int>> associatedMatrix(vector<vector<int>> state, int direction){
-    vector<vector<int>> map(state.size(), vector<int>(state.size(), 0));
+vector<vector<int>> associatedMatrix(const vector<vector<int>>& state, int direction) {
     int size = state.size();
-        for(int i = 0; i < size ; i++){
-            for(int j = 0 ; j < size ; j++){
-                if(state[i][j]!= 0 && direction == 0)  {
-                    int n = (state[i][j] - 1) /size;
-                    map[i][n]++;
-                }else if(state[i][j]!= 0 && direction == 1){
-                    int n = (state[i][j] - 1) % size;
-                    map[n][j]++;
-                }
-        }
-    }
-    return map;
-};
-
-// Finds the traspose of a matrix to get the vertical walking distance
-vector<vector<int>> traspose(vector<vector<int>> node){
-    vector<vector<int>> traspose;
-    for(int i = 0; i < static_cast<int>(node.size()); i++){
-        vector<int> row;
-        for(int j = 0; j < static_cast<int>(node.size()); j++){
-            row.push_back(node[j][i]);
-        }
-        traspose.push_back(row);
-    }
-    return traspose;
-};
-
-// Converts a matrix to a string for comparison with the database
-string matrixToString(const vector<vector<int>>& matrix) {
-    string matrix_str;
-    for (const auto& row : matrix) {
-        for (int val : row) {
-            matrix_str += to_string(val) + " ";
-        }
-        matrix_str += ";";
-    }
-    matrix_str.pop_back();
-    return matrix_str;
-}
-
-// Finds the state in the database
-int findStateInFile(const vector<vector<int>>& targetMatrix, const string& filename) {
-    ifstream file(filename);
-    if (!file.is_open()) {
-        cerr << "Cant open the file" << filename << endl;
-        return -1;
-    }
-
-    string targetMatrixStr = matrixToString(targetMatrix);
-
-    string line;
-    while (getline(file, line)) {
-        size_t pos = line.find(':');
-        if (pos != string::npos) {
-            string matrixPart = line.substr(0, pos); //Extract the matrix
-            string distancePart = line.substr(pos + 1); // Extract the distance
-
-            if (matrixPart == targetMatrixStr) {
-                return stoi(distancePart); // Convert the distance to int
+    vector<vector<int>> map(size, vector<int>(size, 0));
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < size; j++) {
+            if (state[i][j] != 0) {
+                int n = (direction == 0) ? (state[i][j] - 1) / size : (state[i][j] - 1) % size;
+                map[i][n]++;
             }
         }
     }
-
-    file.close();
-    return -1; // Return -1 if the state isn't found
+    return map;
 }
+
+// Finds the traspose of a matrix to get the vertical walking distance
+vector<vector<int>> traspose(const vector<vector<int>>& node) {
+    int size = node.size();
+    vector<vector<int>> traspose(size, vector<int>(size));
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < size; j++) {
+            traspose[j][i] = node[i][j];
+        }
+    }
+    return traspose;
+}
+
+// Converts a matrix to a string for comparison with the database
+string matrixToString(const vector<vector<int>>& matrix) {
+    string result;
+    for (const auto& row : matrix) {
+        for (int val : row) {
+            result += to_string(val) + " ";
+        }
+        result+= ';';
+    }
+    result.pop_back();
+    return result;
+}
+
 
 // ------ Heuristics -------
 
 // Walking distance
-int walking_distance(vector<vector<int>> node){
-    vector<vector<int>> horizontal = associatedMatrix(node,0);
-    vector<vector<int>> vertical = associatedMatrix(node,1);
+int walking_distance(const vector<vector<int>>& node) {
+    vector<vector<int>> horizontal = associatedMatrix(node, 0);
+    vector<vector<int>> vertical = associatedMatrix(node, 1);
     vertical = traspose(vertical);
 
-    int horizontalWD= findStateInFile(horizontal, "dbStates.txt");
-    int verticalWD = findStateInFile(vertical, "dbStates.txt");
+    string horizontalStr = matrixToString(horizontal);
+    string verticalStr = matrixToString(vertical);
+
+    int horizontalWD = db[horizontalStr];
+    int verticalWD = db[verticalStr];
 
     return horizontalWD + verticalWD;
-
 }
 
 // Manhattan distance
@@ -158,6 +154,6 @@ int linearConflict(const vector<vector<int>>& puzzle) {
 }
 
 // Hybrid heuristic (HH)
-int HH(vector<vector<int>> node){
-    return walking_distance(node) + (manhattanDistance(node) /3)+ linearConflict(node);
+int HH(const vector<vector<int>>& node) {
+    return walking_distance(node) + (manhattanDistance(node) / 3) + linearConflict(node);
 }
