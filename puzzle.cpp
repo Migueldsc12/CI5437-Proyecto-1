@@ -54,6 +54,61 @@ std::vector<std::vector<std::vector<int>>> get_successors(std::vector<std::vecto
     return successors;
 }
 
+#include <vector>
+#include <algorithm>
+
+// Función para contar el número de inversiones en una permutación
+int count_inversions(const std::vector<std::vector<int>>& state) {
+    int n = state.size();
+    std::vector<int> flattened;
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            if (state[i][j] != 0) {
+                flattened.push_back(state[i][j]);
+            }
+        }
+    }
+
+    int inversions = 0;
+    for (int i = 0; i < flattened.size(); i++) {
+        for (int j = i + 1; j < flattened.size(); j++) {
+            if (flattened[i] > flattened[j]) {
+                inversions++;
+            }
+        }
+    }
+    return inversions;
+}
+
+// Función para determinar la paridad de la distancia del espacio vacío
+int get_blank_parity(const std::vector<std::vector<int>>& state) {
+    int n = state.size();
+    int blank_row = -1;
+
+    // Encontrar la fila del espacio vacío (0)
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            if (state[i][j] == 0) {
+                blank_row = i;
+                break;
+            }
+        }
+        if (blank_row != -1) break;
+    }
+
+    // La paridad es la distancia desde la fila inferior (n-1)
+    return (n - 1 - blank_row) % 2;
+}
+
+// Función para verificar si el estado tiene solución
+bool has_solution(const std::vector<std::vector<int>>& state) {
+    int inversions = count_inversions(state);
+    int blank_parity = get_blank_parity(state);
+
+    // El estado tiene solución si las paridades coinciden
+    return (inversions % 2) == blank_parity;
+}
+
 // Algoritmo DFS_CONTOUR
 std::pair<Node*, int> DFS_CONTOUR(Node* node, int f_limit, int& states_generated) {
     if (node->f > f_limit) {
@@ -66,7 +121,7 @@ std::pair<Node*, int> DFS_CONTOUR(Node* node, int f_limit, int& states_generated
     int next_f = INT_MAX;
     for (auto successor_state : get_successors(node->state)) {
         states_generated++; // Contar el estado generado
-        int h_cost = md_lc(successor_state);
+        int h_cost = HH(successor_state);
         Node* successor_node = new Node(successor_state, node->g + 1, h_cost, node);
 
         auto result = DFS_CONTOUR(successor_node, f_limit, states_generated);
@@ -84,7 +139,13 @@ std::pair<Node*, int> DFS_CONTOUR(Node* node, int f_limit, int& states_generated
 
 // // Algoritmo IDA*
 std::pair<std::vector<std::vector<std::vector<int>>>, int> IDA_star(std::vector<std::vector<int>> initial_state, int& states_generated) {
-    int f_limit = md_lc(initial_state);
+    
+    // Verificar si el estado inicial tiene solución
+    if (!has_solution(initial_state)) {
+        return {{}, 0}; // No hay solución
+    }
+
+    int f_limit = HH(initial_state);
     Node* root = new Node(initial_state, 0, f_limit);
 
     while (true) {

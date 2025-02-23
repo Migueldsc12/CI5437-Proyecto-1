@@ -4,6 +4,6 @@
 #include <vector>
 #include <cmath>
 
-int md_lc(std::vector<std::vector<int>> node);
+int HH(std::vector<std::vector<int>> node);
 
 #endif

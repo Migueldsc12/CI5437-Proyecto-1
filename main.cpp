@@ -4,10 +4,10 @@
 int main() {
     // Ejemplo de tablero inicial
     std::vector<std::vector<int>> initial_state = {
-        {1, 2, 3, 4},
-        {5, 6, 7, 8},
-        {9, 10, 11, 12},
-        {13, 14, 0, 15}
+        {5, 6, 10, 7},
+        {1, 3, 11, 8},
+        {13, 4, 15, 9},
+        {14, 0, 2, 12}
     };
 
     int states_generated = 0; // Contador de estados generados
