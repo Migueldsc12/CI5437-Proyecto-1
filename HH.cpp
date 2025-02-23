@@ -106,7 +106,6 @@ int walking_distance(vector<vector<int>> node){
 // Manhattan distance
 int manhattanDistance(vector<vector<int>> node){
     int distance = 0; 
-    int conflict = 0;
     for(int i = 0; i < static_cast<int>(node.size()); i++){
         for(int j = 0; j < static_cast<int>(node[i].size()); j++){
             if(node[i][j] != 0){
