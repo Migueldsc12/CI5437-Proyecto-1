@@ -1,12 +1,14 @@
 #include "puzzle.h"
 #include <algorithm>
+#include <vector>
+#include <climits> 
 
 // Verifica si el estado actual es la meta
 bool is_goal(std::vector<std::vector<int>> state) {
-    int n = state.size();
+    size_t n = state.size();
     int count = 1;
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
+    for (size_t i = 0; i < n; i++) {
+        for (size_t j = 0; j < n; j++) {
             if (i == n - 1 && j == n - 1) {
                 if (state[i][j] != 0) return false;
             } else {
@@ -21,19 +23,19 @@ bool is_goal(std::vector<std::vector<int>> state) {
 // Genera todos los posibles estados sucesores a partir de un estado dado del tablero
 std::vector<std::vector<std::vector<int>>> get_successors(std::vector<std::vector<int>> state) {
     std::vector<std::vector<std::vector<int>>> successors;
-    int n = state.size();
-    int x = -1, y = -1;
+    size_t n = state.size();
+    size_t x = n, y = n; // Inicializar con un valor inválido (n)
 
     // Encontrar la posición del espacio vacío (0)
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
+    for (size_t i = 0; i < n; i++) {
+        for (size_t j = 0; j < n; j++) {
             if (state[i][j] == 0) {
                 x = i;
                 y = j;
                 break;
             }
         }
-        if (x != -1) break;
+        if (x != n) break; // Usar n como valor inválido
     }
 
     // Movimientos posibles: arriba, abajo, izquierda, derecha
@@ -44,7 +46,7 @@ std::vector<std::vector<std::vector<int>>> get_successors(std::vector<std::vecto
         int nx = x + dx[i];
         int ny = y + dy[i];
 
-        if (nx >= 0 && nx < n && ny >= 0 && ny < n) {
+        if (nx >= 0 && nx < static_cast<int>(n) && ny >= 0 && ny < static_cast<int>(n)) {
             std::vector<std::vector<int>> new_state = state;
             std::swap(new_state[x][y], new_state[nx][ny]);
             successors.push_back(new_state);
@@ -54,15 +56,12 @@ std::vector<std::vector<std::vector<int>>> get_successors(std::vector<std::vecto
     return successors;
 }
 
-#include <vector>
-#include <algorithm>
-
 // Función para contar el número de inversiones en una permutación
 int count_inversions(const std::vector<std::vector<int>>& state) {
-    int n = state.size();
+    size_t n = state.size();
     std::vector<int> flattened;
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
+    for (size_t i = 0; i < n; i++) {
+        for (size_t j = 0; j < n; j++) {
             if (state[i][j] != 0) {
                 flattened.push_back(state[i][j]);
             }
@@ -70,8 +69,8 @@ int count_inversions(const std::vector<std::vector<int>>& state) {
     }
 
     int inversions = 0;
-    for (int i = 0; i < flattened.size(); i++) {
-        for (int j = i + 1; j < flattened.size(); j++) {
+    for (size_t i = 0; i < flattened.size(); i++) {
+        for (size_t j = i + 1; j < flattened.size(); j++) {
             if (flattened[i] > flattened[j]) {
                 inversions++;
             }
@@ -82,18 +81,18 @@ int count_inversions(const std::vector<std::vector<int>>& state) {
 
 // Función para determinar la paridad de la distancia del espacio vacío
 int get_blank_parity(const std::vector<std::vector<int>>& state) {
-    int n = state.size();
-    int blank_row = -1;
+    size_t n = state.size();
+    size_t blank_row = n; // Inicializar con un valor inválido (n)
 
     // Encontrar la fila del espacio vacío (0)
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
+    for (size_t i = 0; i < n; i++) {
+        for (size_t j = 0; j < n; j++) {
             if (state[i][j] == 0) {
                 blank_row = i;
                 break;
             }
         }
-        if (blank_row != -1) break;
+        if (blank_row != n) break; // Usar n como valor inválido
     }
 
     // La paridad es la distancia desde la fila inferior (n-1)
@@ -137,7 +136,7 @@ std::pair<Node*, int> DFS_CONTOUR(Node* node, int f_limit, int& states_generated
     return {nullptr, next_f};
 }
 
-// // Algoritmo IDA*
+// Algoritmo IDA*
 std::pair<std::vector<std::vector<std::vector<int>>>, int> IDA_star(std::vector<std::vector<int>> initial_state, int& states_generated) {
     
     // Verificar si el estado inicial tiene solución

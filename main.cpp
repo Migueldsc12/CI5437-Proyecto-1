@@ -1,14 +1,33 @@
 #include <iostream>
+#include <vector>
 #include "puzzle.h"
 
 int main() {
-    // Ejemplo de tablero inicial
-    std::vector<std::vector<int>> initial_state = {
-        {5, 6, 10, 7},
-        {1, 3, 11, 8},
-        {13, 4, 15, 9},
-        {14, 0, 2, 12}
-    };
+    std::vector<std::vector<int>> initial_state(4, std::vector<int>(4)); // Matriz 4x4
+    std::vector<int> numbers;
+
+    std::cout << "Ingrese los 16 números del tablero (separados por espacios): ";
+
+    // Leer los 16 números desde la terminal
+    for (int i = 0; i < 16; i++) {
+        int num;
+        std::cin >> num;
+        numbers.push_back(num);
+    }
+
+    // Verificar que se ingresaron exactamente 16 números
+    if (numbers.size() != 16) {
+        std::cerr << "Error: Debe ingresar exactamente 16 números." << std::endl;
+        return 1;
+    }
+
+    // Convertir el vector de números en una matriz 4x4
+    int index = 0;
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            initial_state[i][j] = numbers[index++];
+        }
+    }
 
     int states_generated = 0; // Contador de estados generados
 
