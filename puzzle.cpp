@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <vector>
 #include <climits> 
+#include <unordered_set>
 
 // Verifica si el estado actual es la meta
 bool is_goal(std::vector<std::vector<int>> state) {
@@ -108,8 +109,21 @@ bool has_solution(const std::vector<std::vector<int>>& state) {
     return (inversions % 2) == blank_parity;
 }
 
+// Estructura para comparar estados en el hash set
+struct StateHash {
+    size_t operator()(const std::vector<std::vector<int>>& state) const {
+        size_t hash = 0;
+        for (const auto& row : state) {
+            for (int val : row) {
+                hash = hash * 31 + val;
+            }
+        }
+        return hash;
+    }
+};
+
 // Algoritmo DFS_CONTOUR
-std::pair<Node*, int> DFS_CONTOUR(Node* node, int f_limit, int& states_generated) {
+std::pair<Node*, int> DFS_CONTOUR(Node* node, int f_limit, int& states_generated, std::unordered_set<std::vector<std::vector<int>>, StateHash>& visited) {
     if (node->f > f_limit) {
         return {nullptr, node->f};
     }
@@ -117,13 +131,26 @@ std::pair<Node*, int> DFS_CONTOUR(Node* node, int f_limit, int& states_generated
         return {node, f_limit};
     }
 
+    visited.insert(node->state);
     int next_f = INT_MAX;
-    for (auto successor_state : get_successors(node->state)) {
+    std::vector<Node*> successors;
+
+    for (auto& successor_state : get_successors(node->state)) {
+        if (visited.count(successor_state)) continue;
+        if (node->parent != nullptr && successor_state == node->parent->state) continue;
+
         states_generated++; // Contar el estado generado
         int h_cost = HH(successor_state);
         Node* successor_node = new Node(successor_state, node->g + 1, h_cost, node);
+        successors.push_back(successor_node);
+    }
 
-        auto result = DFS_CONTOUR(successor_node, f_limit, states_generated);
+    std::sort(successors.begin(), successors.end(), [](Node* a, Node* b) {
+        return a->f < b->f;
+    });
+
+    for (Node* successor : successors) {
+        auto result = DFS_CONTOUR(successor, f_limit, states_generated, visited);
         Node* solution = result.first;
         int new_f = result.second;
 
@@ -133,6 +160,7 @@ std::pair<Node*, int> DFS_CONTOUR(Node* node, int f_limit, int& states_generated
         next_f = std::min(next_f, new_f);
     }
 
+    visited.erase(node->state);
     return {nullptr, next_f};
 }
 
@@ -148,7 +176,8 @@ std::pair<std::vector<std::vector<std::vector<int>>>, int> IDA_star(std::vector<
     Node* root = new Node(initial_state, 0, f_limit);
 
     while (true) {
-        auto result = DFS_CONTOUR(root, f_limit, states_generated);
+        std::unordered_set<std::vector<std::vector<int>>, StateHash> visited;
+        auto result = DFS_CONTOUR(root, f_limit, states_generated, visited);
         Node* solution = result.first;
         int new_f_limit = result.second;
 
