@@ -103,8 +103,8 @@ int walking_distance(vector<vector<int>> node){
 
 }
 
-// Manhattan distance and linear conflict
-int md_lc(vector<vector<int>> node){
+// Manhattan distance
+int manhattanDistance(vector<vector<int>> node){
     int distance = 0; 
     int conflict = 0;
     for(int i = 0; i < static_cast<int>(node.size()); i++){
@@ -115,37 +115,41 @@ int md_lc(vector<vector<int>> node){
                 int goalY = (val - 1) % node.size();
                 distance += abs(i-goalX) + abs(j-goalY); // Manhattan distance
 
-                // Linear Conflict
-                // Check if the tile is in the same row as its goal position
-                if (i == goalX){
-                    for(int k = j+1; k < static_cast<int>(node.size()); k++){
-                        if(node[i][k] != 0){
-                            int val2 = node[i][k];
-                            int goalY2 = (val2 - 1) % node.size();
-                            if(goalY > goalY2){
-                                conflict++;
-                                
-                            };
-                        };
-                    };
-                // Check if the tile is in the same column as its goal position
-                } if(j == goalY){
-                    for(int k = i+1; k < static_cast<int>(node.size()); k++){
-                        if(node[k][j] != 0){
-                            int val2 = node[k][j];
-                            int goalX2 = (val2 - 1) / node.size();
-                            if(goalX > goalX2){
-                                conflict++;
-                            };
-                        };
-                    };
-                };
+                    }
             };
         };
-    };
-    return distance/3 + conflict; // md/3 + lc
+    return distance;
+}
+int linearConflict(const vector<vector<int>>& puzzle) {
+    int conflict = 0;
+    int N = puzzle.size();
+    for (int i = 0; i < N; ++i) {
+        for (int j = 0; j < N - 1; ++j) {
+            for (int k = j + 1; k < N; ++k) {
+                int pj = puzzle[i][j];
+                int pk = puzzle[i][k];
+                if (pj != 0 && pk != 0 && (pj - 1) / N == i && (pk - 1) / N == i && pj > pk) {
+                    conflict += 2;
+                }
+            }
+        }
+    }
+
+    for (int j = 0; j < N; ++j) {
+        for (int i = 0; i < N - 1; ++i) {
+            for (int k = i + 1; k < N; ++k) {
+                int pi = puzzle[i][j];
+                int pk = puzzle[k][j];
+                if (pi != 0 && pk != 0 && pi % N == j + 1 && pk % N == j + 1 && pi > pk) {
+                    conflict += 2;
+                }
+            }
+        }
+    }
+
+    return conflict;
 }
 
 int HH(vector<vector<int>> node){
-    return walking_distance(node) + md_lc(node);
+    return walking_distance(node) + (manhattanDistance(node) /3)+ linearConflict(node);
 }
