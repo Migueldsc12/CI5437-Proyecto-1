@@ -38,9 +38,9 @@ vector<vector<int>> convertMap(vector<vector<int>> node, int direction){
 // Find the traspose of a matrix to get the vertical walking distance
 vector<vector<int>> traspose(vector<vector<int>> node){
     vector<vector<int>> traspose;
-    for(int i = 0; i < node.size(); i++){
+    for(int i = 0; i < static_cast<int>(node.size()); i++){
         vector<int> row;
-        for(int j = 0; j < node.size(); j++){
+        for(int j = 0; j < static_cast<int>(node.size()); j++){
             row.push_back(node[j][i]);
         }
         traspose.push_back(row);
@@ -95,7 +95,6 @@ int walking_distance(vector<vector<int>> node){
     vector<vector<int>> horizontal = convertMap(node,0);
     vector<vector<int>> vertical = convertMap(node,1);
     vertical = traspose(vertical);
-    int wd = 0;
 
     int horizontalWD= findStateInFile(horizontal, "dbStates.txt");
     int verticalWD = findStateInFile(vertical, "dbStates.txt");
@@ -108,8 +107,8 @@ int walking_distance(vector<vector<int>> node){
 int md_lc(vector<vector<int>> node){
     int distance = 0; 
     int conflict = 0;
-    for(int i = 0; i < node.size(); i++){
-        for(int j = 0; j < node[i].size(); j++){
+    for(int i = 0; i < static_cast<int>(node.size()); i++){
+        for(int j = 0; j < static_cast<int>(node[i].size()); j++){
             if(node[i][j] != 0){
                 int val = node[i][j];
                 int goalX = (val - 1) / node.size();
@@ -119,7 +118,7 @@ int md_lc(vector<vector<int>> node){
                 // Linear Conflict
                 // Check if the tile is in the same row as its goal position
                 if (i == goalX){
-                    for(int k = j+1; k < node.size(); k++){
+                    for(int k = j+1; k < static_cast<int>(node.size()); k++){
                         if(node[i][k] != 0){
                             int val2 = node[i][k];
                             int goalY2 = (val2 - 1) % node.size();
@@ -131,7 +130,7 @@ int md_lc(vector<vector<int>> node){
                     };
                 // Check if the tile is in the same column as its goal position
                 } if(j == goalY){
-                    for(int k = i+1; k < node.size(); k++){
+                    for(int k = i+1; k < static_cast<int>(node.size()); k++){
                         if(node[k][j] != 0){
                             int val2 = node[k][j];
                             int goalX2 = (val2 - 1) / node.size();
