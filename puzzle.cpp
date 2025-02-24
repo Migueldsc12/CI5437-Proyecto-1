@@ -3,6 +3,7 @@
 #include <vector>
 #include <climits> 
 #include <unordered_set>
+#include <iostream>
 
 // Verifica si el estado actual es la meta
 bool is_goal(std::vector<std::vector<int>> state) {
@@ -180,6 +181,9 @@ std::pair<std::vector<std::vector<std::vector<int>>>, int> IDA_star(std::vector<
         auto result = DFS_CONTOUR(root, f_limit, states_generated, visited);
         Node* solution = result.first;
         int new_f_limit = result.second;
+
+        // Imprimir el nuevo límite y los estados generados
+        std::cout << "Nuevo límite: " << f_limit << " | Estados generados: " << states_generated << std::endl;
 
         if (solution != nullptr) {
             // Reconstruir el camino desde la solución hasta la raíz

@@ -40,6 +40,7 @@ int main() {
     if (path.empty()) {
         std::cout << "No hay solucion" << std::endl;
     } else {
+        std::cout << "Solucion encontrada" << std::endl;
         // (1) Secuencia de tableros
         std::cout << "Secuencia de tableros:" << std::endl;
         for (auto state : path) {
