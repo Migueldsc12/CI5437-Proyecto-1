@@ -1,0 +1,11 @@
+# Ignorar archivos específicos
+dbStates.txt
+precompute
+puzzle_solver
+
+# Ignorar carpetas de compilación y binarios
+bin/
+obj/
+build/
+*.o
+*.out
