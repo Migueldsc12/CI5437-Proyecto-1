@@ -3,7 +3,6 @@
 #include "puzzle.h"
 
 int main() {
-    loadDatabase("dbStates.txt");
     std::vector<std::vector<int>> initial_state(4, std::vector<int>(4)); // Matriz 4x4
     std::vector<int> numbers;
 
