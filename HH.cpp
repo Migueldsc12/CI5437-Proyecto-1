@@ -42,9 +42,10 @@ vector<vector<int>> associatedMatrix(vector<vector<int>> state, int direction){
 // Finds the traspose of a matrix to get the vertical walking distance
 vector<vector<int>> traspose(vector<vector<int>> node){
     vector<vector<int>> traspose;
-    for(int i = 0; i < static_cast<int>(node.size()); i++){
+    int size = node.size();
+    for(int i = 0; i < size; i++){
         vector<int> row;
-        for(int j = 0; j < static_cast<int>(node.size()); j++){
+        for(int j = 0; j < size; j++){
             row.push_back(node[j][i]);
         }
         traspose.push_back(row);
@@ -109,13 +110,14 @@ int walking_distance(vector<vector<int>> node){
 
 // Manhattan distance
 int manhattanDistance(vector<vector<int>> node){
-    int distance = 0; 
-    for(int i = 0; i < static_cast<int>(node.size()); i++){
-        for(int j = 0; j < static_cast<int>(node[i].size()); j++){
+    int distance = 0;
+    int size = node.size();
+    for(int i = 0; i < size ; i++){
+        for(int j = 0; j < size ; j++){
             if(node[i][j] != 0){
                 int val = node[i][j];
-                int goalX = (val - 1) / node.size();
-                int goalY = (val - 1) % node.size();
+                int goalX = (val - 1) / size;
+                int goalY = (val - 1) % size;
                 distance += abs(i-goalX) + abs(j-goalY);
 
                     }
