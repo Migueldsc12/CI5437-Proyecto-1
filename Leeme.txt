@@ -17,13 +17,13 @@
 
 3. Ejemplo de Entrada:
 
-    1 2 3 4
-    5 6 7 8
-    9 10 11 12
-    13 14 0 15
+    1 2 3 4 5 6 7 8 9 10 11 12 13 14 0 15
 
 
 4. Ejemplo de Salida:
+
+  Nuevo límite: 1 | Estados generados: 3
+  Solucion encontrada
 
    Secuencia de tableros:
     1 2 3 4 
